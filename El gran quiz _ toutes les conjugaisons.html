@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>El gran quiz : toutes les conjugaisons</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EAF2F8; --surface:#FFFFFF; --ink:#1F2A44; --muted:#5B6782;
+  --sun:#E9A52A; --line:#C9D6E3; --ok:#23794B; --ok-bg:#E2F3E9;
+  --bad:#B9402B; --bad-bg:#FBE7E2; --warn:#8A5A00; --warn-bg:#FDF1D6;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#121A2B; --surface:#1B2539; --ink:#E8EEF7; --muted:#9AA8C2;
+    --sun:#F2B94A; --line:#2E3B55; --ok:#6FD39C; --ok-bg:#16352A;
+    --bad:#F08C76; --bad-bg:#3D211C; --warn:#F2C76A; --warn-bg:#3A2E14;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121A2B; --surface:#1B2539; --ink:#E8EEF7; --muted:#9AA8C2;
+  --sun:#F2B94A; --line:#2E3B55; --ok:#6FD39C; --ok-bg:#16352A;
+  --bad:#F08C76; --bad-bg:#3D211C; --warn:#F2C76A; --warn-bg:#3A2E14;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:1.05rem;line-height:1.5}
+main{max-width:40rem;margin:0 auto;padding:2rem 1.25rem 3rem}
+h1{font-family:"Fraunces",Georgia,serif;font-weight:700;font-size:clamp(2rem,6vw,2.8rem);
+  line-height:1.1;margin:0 0 .4rem;letter-spacing:-.01em}
+.intro{color:var(--muted);margin:0 0 1.75rem}
+
+/* Day track: the progress is the sun crossing the sky */
+.track{position:relative;height:2.4rem;margin-bottom:1.5rem}
+.track::before{content:"";position:absolute;left:0;right:0;top:50%;height:2px;background:var(--line)}
+.track .fill{position:absolute;left:0;top:50%;height:2px;background:var(--sun);transition:width .4s ease}
+.track .sun{position:absolute;top:50%;width:1.6rem;height:1.6rem;margin:-.8rem 0 0 -.8rem;
+  border-radius:50%;background:var(--sun);box-shadow:0 0 0 6px color-mix(in srgb,var(--sun) 25%,transparent);
+  transition:left .4s ease}
+.track .ends{position:absolute;inset:auto 0 -1.1rem 0;display:flex;justify-content:space-between;
+  font-size:.85rem;color:var(--muted)}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:1.5rem}
+.meta{display:flex;justify-content:space-between;gap:1rem;color:var(--muted);font-size:.95rem;margin-bottom:1rem}
+.verb{color:var(--ink);font-weight:700}
+.sentence{font-family:"Fraunces",Georgia,serif;font-size:clamp(1.35rem,4.5vw,1.7rem);
+  line-height:1.6;margin:0 0 1.25rem}
+.sentence input{font:inherit;font-family:"Atkinson Hyperlegible",system-ui,sans-serif;
+  font-size:.9em;color:var(--ink);background:transparent;border:0;border-bottom:2px solid var(--ink);
+  width:9.5em;max-width:100%;padding:0 .2em;text-align:center;border-radius:0}
+.sentence input:focus{outline:none;border-bottom-color:var(--sun);background:color-mix(in srgb,var(--sun) 12%,transparent)}
+.sentence input.ok{border-bottom-color:var(--ok);color:var(--ok)}
+.sentence input.bad{border-bottom-color:var(--bad);color:var(--bad)}
+
+.accents{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.25rem}
+.accents button{font:inherit;min-width:2.4rem;height:2.4rem;border:1px solid var(--line);
+  background:var(--bg);color:var(--ink);border-radius:8px;cursor:pointer}
+.accents button:hover{border-color:var(--ink)}
+
+.actions{display:flex;gap:.6rem;flex-wrap:wrap}
+.btn{font:inherit;font-weight:700;padding:.7rem 1.2rem;border-radius:10px;cursor:pointer;
+  border:2px solid var(--ink);background:var(--ink);color:var(--surface)}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn:focus-visible,.accents button:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+
+.feedback{margin-top:1.25rem;padding:.9rem 1rem;border-radius:10px;display:none}
+.feedback.show{display:block}
+.feedback.ok{background:var(--ok-bg);color:var(--ok)}
+.feedback.bad{background:var(--bad-bg);color:var(--bad)}
+.feedback.warn{background:var(--warn-bg);color:var(--warn)}
+.feedback strong{font-weight:700}
+.feedback .full{display:block;margin-top:.3rem;color:var(--ink)}
+
+.result h2{font-family:"Fraunces",Georgia,serif;font-size:2rem;margin:0 0 .5rem}
+.result p{margin:.2rem 0 1rem;color:var(--muted)}
+.result ul{padding:0;margin:0 0 1.5rem;list-style:none}
+.result li{padding:.6rem 0;border-top:1px solid var(--line)}
+.result li span{color:var(--muted);font-size:.95rem;display:block}
+.result li b{color:var(--ok)}
+.hidden{display:none}
+@media (prefers-reduced-motion:reduce){.track .fill,.track .sun{transition:none}}
+</style>
+</head>
+<body>
+<main>
+  <h1>El gran quiz</h1>
+  <p class="intro">Écris la bonne forme du verbe au présent, avec le pronom réfléchi quand il y en a un (ex. : <em>me levanto</em>). Appuie sur Entrée pour valider. Les 72 formes des 12 verbes y sont, dans le désordre.</p>
+
+  <div class="track" aria-hidden="true">
+    <div class="fill" id="fill"></div>
+    <div class="sun" id="sun"></div>
+    <div class="ends"><span>Matin</span><span>Soir</span></div>
+  </div>
+
+  <section class="card" id="quiz">
+    <div class="meta">
+      <span>Verbe : <span class="verb" id="verb"></span></span>
+      <span id="count"></span>
+    </div>
+    <p class="sentence" id="sentence"></p>
+    <div class="accents" id="accents" aria-label="Insérer un caractère spécial"></div>
+    <div class="actions">
+      <button class="btn" id="check">Vérifier</button>
+      <button class="btn ghost" id="next" hidden>Question suivante</button>
+      <button class="btn ghost" id="stop">Arrêter et voir mon score</button>
+    </div>
+    <div class="feedback" id="feedback" role="status"></div>
+  </section>
+
+  <section class="card result hidden" id="result"></section>
+</main>
+
+<script>
+const ALL = [
+  {"v": "levantarse", "fr": "se lever", "b": "Yo", "a": "a las siete de la mañana.", "r": "me levanto"},
+  {"v": "levantarse", "fr": "se lever", "b": "¿Tú", "a": "temprano los lunes?", "r": "te levantas"},
+  {"v": "levantarse", "fr": "se lever", "b": "Mi madre", "a": "antes que todos.", "r": "se levanta"},
+  {"v": "levantarse", "fr": "se lever", "b": "Nosotros", "a": "tarde en vacaciones.", "r": "nos levantamos"},
+  {"v": "levantarse", "fr": "se lever", "b": "Vosotros", "a": "a las seis y media.", "r": "os levantáis"},
+  {"v": "levantarse", "fr": "se lever", "b": "Mis hermanos", "a": "muy tarde los domingos.", "r": "se levantan"},
+  {"v": "despertarse", "fr": "se réveiller", "b": "Yo", "a": "con la radio.", "r": "me despierto"},
+  {"v": "despertarse", "fr": "se réveiller", "b": "¿A qué hora", "a": "tú?", "r": "te despiertas"},
+  {"v": "despertarse", "fr": "se réveiller", "b": "Mi hermana", "a": "siempre de mal humor.", "r": "se despierta"},
+  {"v": "despertarse", "fr": "se réveiller", "b": "Nosotros", "a": "con el despertador.", "r": "nos despertamos"},
+  {"v": "despertarse", "fr": "se réveiller", "b": "¿Vosotras", "a": "fácilmente?", "r": "os despertáis"},
+  {"v": "despertarse", "fr": "se réveiller", "b": "Los bebés", "a": "varias veces por la noche.", "r": "se despiertan"},
+  {"v": "vestirse", "fr": "s’habiller", "b": "Yo", "a": "después de desayunar.", "r": "me visto"},
+  {"v": "vestirse", "fr": "s’habiller", "b": "Tú", "a": "muy rápido.", "r": "te vistes"},
+  {"v": "vestirse", "fr": "s’habiller", "b": "Usted", "a": "con mucha elegancia.", "r": "se viste"},
+  {"v": "vestirse", "fr": "s’habiller", "b": "Nosotros", "a": "para la fiesta.", "r": "nos vestimos"},
+  {"v": "vestirse", "fr": "s’habiller", "b": "Vosotros", "a": "en vuestra habitación.", "r": "os vestís"},
+  {"v": "vestirse", "fr": "s’habiller", "b": "Los chicos", "a": "con ropa deportiva.", "r": "se visten"},
+  {"v": "ducharse", "fr": "se doucher", "b": "Yo", "a": "por la mañana.", "r": "me ducho"},
+  {"v": "ducharse", "fr": "se doucher", "b": "¿Tú", "a": "por la noche?", "r": "te duchas"},
+  {"v": "ducharse", "fr": "se doucher", "b": "Mi padre", "a": "con agua fría.", "r": "se ducha"},
+  {"v": "ducharse", "fr": "se doucher", "b": "Nosotros", "a": "después del partido.", "r": "nos duchamos"},
+  {"v": "ducharse", "fr": "se doucher", "b": "¿Vosotras", "a": "antes del desayuno?", "r": "os ducháis"},
+  {"v": "ducharse", "fr": "se doucher", "b": "Los jugadores", "a": "en el vestuario.", "r": "se duchan"},
+  {"v": "acostarse", "fr": "se coucher", "b": "Yo", "a": "a las once de la noche.", "r": "me acuesto"},
+  {"v": "acostarse", "fr": "se coucher", "b": "Tú", "a": "demasiado tarde.", "r": "te acuestas"},
+  {"v": "acostarse", "fr": "se coucher", "b": "Mi abuela", "a": "a las diez.", "r": "se acuesta"},
+  {"v": "acostarse", "fr": "se coucher", "b": "Nosotros", "a": "tarde los sábados.", "r": "nos acostamos"},
+  {"v": "acostarse", "fr": "se coucher", "b": "¿A qué hora", "a": "vosotros?", "r": "os acostáis"},
+  {"v": "acostarse", "fr": "se coucher", "b": "Los niños", "a": "a las nueve.", "r": "se acuestan"},
+  {"v": "salir", "fr": "sortir", "b": "Yo", "a": "de casa a las ocho.", "r": "salgo"},
+  {"v": "salir", "fr": "sortir", "b": "¿Tú", "a": "con tus amigos esta tarde?", "r": "sales"},
+  {"v": "salir", "fr": "sortir", "b": "Mi amiga", "a": "con sus primos el sábado.", "r": "sale"},
+  {"v": "salir", "fr": "sortir", "b": "Nosotros", "a": "del colegio a las cinco.", "r": "salimos"},
+  {"v": "salir", "fr": "sortir", "b": "Vosotros", "a": "al parque después de comer.", "r": "salís"},
+  {"v": "salir", "fr": "sortir", "b": "¿Ustedes", "a": "esta noche?", "r": "salen"},
+  {"v": "volver", "fr": "rentrer", "b": "Yo", "a": "a casa a pie.", "r": "vuelvo"},
+  {"v": "volver", "fr": "rentrer", "b": "¿A qué hora", "a": "tú del instituto?", "r": "vuelves"},
+  {"v": "volver", "fr": "rentrer", "b": "Mi padre", "a": "del trabajo a las seis.", "r": "vuelve"},
+  {"v": "volver", "fr": "rentrer", "b": "Nosotras", "a": "a casa en autobús.", "r": "volvemos"},
+  {"v": "volver", "fr": "rentrer", "b": "Vosotros", "a": "de vacaciones el lunes.", "r": "volvéis"},
+  {"v": "volver", "fr": "rentrer", "b": "Mis padres", "a": "tarde del cine.", "r": "vuelven"},
+  {"v": "hacer", "fr": "faire", "b": "Yo", "a": "los deberes después de clase.", "r": "hago"},
+  {"v": "hacer", "fr": "faire", "b": "¿Qué", "a": "tú los domingos?", "r": "haces"},
+  {"v": "hacer", "fr": "faire", "b": "Mi hermano", "a": "deporte todos los días.", "r": "hace"},
+  {"v": "hacer", "fr": "faire", "b": "Nosotras", "a": "una tarta para la abuela.", "r": "hacemos"},
+  {"v": "hacer", "fr": "faire", "b": "¿Qué", "a": "vosotros el fin de semana?", "r": "hacéis"},
+  {"v": "hacer", "fr": "faire", "b": "Mis primos", "a": "la cama cada mañana.", "r": "hacen"},
+  {"v": "empezar", "fr": "commencer", "b": "Yo", "a": "el día con un café.", "r": "empiezo"},
+  {"v": "empezar", "fr": "commencer", "b": "Tú", "a": "a trabajar muy temprano.", "r": "empiezas"},
+  {"v": "empezar", "fr": "commencer", "b": "La película", "a": "a las diez.", "r": "empieza"},
+  {"v": "empezar", "fr": "commencer", "b": "Nosotros", "a": "las clases en septiembre.", "r": "empezamos"},
+  {"v": "empezar", "fr": "commencer", "b": "¿Cuándo", "a": "vosotros el examen?", "r": "empezáis"},
+  {"v": "empezar", "fr": "commencer", "b": "Las clases", "a": "a las ocho y media.", "r": "empiezan"},
+  {"v": "ir", "fr": "aller", "b": "Yo", "a": "al instituto en bici.", "r": "voy"},
+  {"v": "ir", "fr": "aller", "b": "¿Adónde", "a": "tú después de clase?", "r": "vas"},
+  {"v": "ir", "fr": "aller", "b": "Mi tío", "a": "al mercado los sábados.", "r": "va"},
+  {"v": "ir", "fr": "aller", "b": "Nosotros", "a": "a la piscina en verano.", "r": "vamos"},
+  {"v": "ir", "fr": "aller", "b": "Vosotros", "a": "al cine el viernes.", "r": "vais"},
+  {"v": "ir", "fr": "aller", "b": "Mis amigos", "a": "a la playa en julio.", "r": "van"},
+  {"v": "dormir", "fr": "dormir", "b": "Yo", "a": "mal antes de un examen.", "r": "duermo"},
+  {"v": "dormir", "fr": "dormir", "b": "¿Cuántas horas", "a": "tú cada noche?", "r": "duermes"},
+  {"v": "dormir", "fr": "dormir", "b": "Mi abuelo", "a": "la siesta todos los días.", "r": "duerme"},
+  {"v": "dormir", "fr": "dormir", "b": "Nosotros", "a": "ocho horas cada noche.", "r": "dormimos"},
+  {"v": "dormir", "fr": "dormir", "b": "¿Vosotros", "a": "en una tienda de campaña?", "r": "dormís"},
+  {"v": "dormir", "fr": "dormir", "b": "Los gatos", "a": "casi todo el día.", "r": "duermen"},
+  {"v": "jugar", "fr": "jouer", "b": "Yo", "a": "al fútbol los martes.", "r": "juego"},
+  {"v": "jugar", "fr": "jouer", "b": "¿Tú", "a": "al baloncesto en el recreo?", "r": "juegas"},
+  {"v": "jugar", "fr": "jouer", "b": "Mi hermana", "a": "al ajedrez con mi padre.", "r": "juega"},
+  {"v": "jugar", "fr": "jouer", "b": "Nosotros", "a": "a los videojuegos por la noche.", "r": "jugamos"},
+  {"v": "jugar", "fr": "jouer", "b": "Vosotros", "a": "a las cartas en el tren.", "r": "jugáis"},
+  {"v": "jugar", "fr": "jouer", "b": "Ellas", "a": "al tenis con sus amigas.", "r": "juegan"}
+];
+
+let deck=[], i=0, score=0, mistakes=[], answered=false;
+const $=id=>document.getElementById(id);
+
+function shuffle(a){a=a.slice();for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]]}return a}
+const clean=s=>s.trim().toLowerCase().replace(/\s+/g," ");
+const noAcc=s=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+const stripPron=s=>s.replace(/^(me|te|se|nos|os)\s+/,"");
+
+"á é í ó ú ñ ¿".split(" ").forEach(ch=>{
+  const b=document.createElement("button");b.type="button";b.textContent=ch;
+  b.setAttribute("aria-label","Insérer "+ch);
+  b.addEventListener("click",()=>{
+    const inp=document.querySelector("#sentence input");if(!inp||answered)return;
+    const s=inp.selectionStart??inp.value.length,e=inp.selectionEnd??inp.value.length;
+    inp.value=inp.value.slice(0,s)+ch+inp.value.slice(e);
+    inp.focus();inp.setSelectionRange(s+1,s+1);
+  });
+  $("accents").appendChild(b);
+});
+
+function start(list){
+  deck=shuffle(list);i=0;score=0;mistakes=[];
+  $("result").classList.add("hidden");$("quiz").classList.remove("hidden");
+  show();
+}
+
+function progress(){
+  const p=deck.length?(i/deck.length)*100:0;
+  $("fill").style.width=p+"%";$("sun").style.left=p+"%";
+}
+
+function show(){
+  answered=false;progress();
+  const q=deck[i];
+  $("verb").textContent=q.v+" ("+q.fr+")";
+  $("count").textContent=(i+1)+" / "+deck.length;
+  $("sentence").innerHTML="";
+  $("sentence").append(q.b+" ");
+  const inp=document.createElement("input");
+  inp.type="text";inp.autocomplete="off";inp.autocapitalize="off";inp.spellcheck=false;
+  inp.setAttribute("aria-label","Ta réponse");
+  inp.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();answered?next():check()}});
+  $("sentence").append(inp," "+q.a);
+  $("feedback").className="feedback";$("feedback").innerHTML="";
+  $("check").hidden=false;$("next").hidden=true;
+  inp.focus();
+}
+
+function check(){
+  const q=deck[i],inp=document.querySelector("#sentence input");
+  const u=clean(inp.value);
+  if(!u){$("feedback").className="feedback warn show";$("feedback").textContent="Écris une réponse avant de vérifier.";inp.focus();return}
+  answered=true;inp.readOnly=true;
+  const fb=$("feedback"),full=`<span class="full">${q.b} <b>${q.r}</b> ${q.a}</span>`;
+  if(u===q.r){
+    score++;inp.classList.add("ok");
+    fb.className="feedback ok show";fb.innerHTML="<strong>¡Correcto!</strong>"+full;
+  }else{
+    inp.classList.add("bad");mistakes.push({q,u});
+    let msg="<strong>Pas tout à fait.</strong> La bonne réponse est <strong>"+q.r+"</strong>.";
+    if(noAcc(u)===noAcc(q.r)) msg="<strong>Presque !</strong> Attention à l’accent : <strong>"+q.r+"</strong>.";
+    else if(q.r.includes(" ")&&u===stripPron(q.r)) msg="<strong>Presque !</strong> N’oublie pas le pronom réfléchi : <strong>"+q.r+"</strong>.";
+    else if(q.r.includes(" ")&&noAcc(stripPron(u))===noAcc(stripPron(q.r))) msg="<strong>Presque !</strong> Vérifie le pronom réfléchi : <strong>"+q.r+"</strong>.";
+    fb.className="feedback bad show";fb.innerHTML=msg+full;
+  }
+  $("check").hidden=true;$("next").hidden=false;
+  $("next").textContent=i===deck.length-1?"Voir mon score":"Question suivante";
+  $("next").focus();
+}
+
+function next(){
+  i++;
+  if(i<deck.length){show();return}
+  progress();finish();
+}
+
+function finish(){
+  $("quiz").classList.add("hidden");
+  const r=$("result");r.classList.remove("hidden");
+  const pct=Math.round(score/deck.length*100);
+  const word=pct===100?"¡Perfecto!":pct>=75?"¡Muy bien!":pct>=50?"¡Bien!":"¡Sigue practicando!";
+  let html=`<h2>${word}</h2><p>${score} bonne${score>1?"s":""} réponse${score>1?"s":""} sur ${deck.length}.</p>`;
+  if(mistakes.length){
+    html+="<p>À revoir :</p><ul>"+mistakes.map(m=>`<li>${m.q.b} <b>${m.q.r}</b> ${m.q.a}<span>Ta réponse : ${m.u.replace(/[<>&]/g,"")}</span></li>`).join("")+"</ul>";
+  }
+  html+='<div class="actions">';
+  if(mistakes.length) html+='<button class="btn" id="redo">Refaire mes erreurs</button>';
+  html+=`<button class="btn ${mistakes.length?"ghost":""}" id="restart">Recommencer tout le quiz</button></div>`;
+  r.innerHTML=html;
+  const wrong=mistakes.map(m=>m.q);
+  if($("redo")) $("redo").addEventListener("click",()=>start(wrong));
+  $("restart").addEventListener("click",()=>start(ALL));
+  ($("redo")||$("restart")).focus();
+}
+
+$("check").addEventListener("click",check);
+$("next").addEventListener("click",next);
+$("stop").addEventListener("click",()=>{const n=answered?i+1:i;if(n===0)return;deck=deck.slice(0,n);i=n;progress();finish();});
+start(ALL);
+</script>
+</body>
+</html>
